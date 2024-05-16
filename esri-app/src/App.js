@@ -28,7 +28,7 @@
 
 import React from 'react';
 import Map from './components/MapView';
-
+import './App.css'
 function App() {
   return (
     <div className="App">

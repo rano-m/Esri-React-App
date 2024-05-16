@@ -1,108 +1,11 @@
-// import React, { useEffect, useRef } from 'react';
-// import * as Loaders from 'esri-loader'; // Using esri-loader
-
-// const Map = () => {
-//   const mapDiv = useRef(null);
-
-//   useEffect(() => {
-//     const loadModules = [
-//       'esri/Map',
-//       'esri/views/MapView',
-//       // Add other necessary modules for your map (basemap, basemap, layers, etc.)
-//     ];
-
-//     Loaders.loadModules(loadModules)
-//       .then(([Map, MapView, ...rest]) => {
-//         console.log('Esri modules loaded successfully'); // Log successful loading
-//         const map = new Map({
-//           basemap: 'a52a26e90c5747339abdf2e80ae2aad6', // Replace with your hosted map ID or basemap URL
-//         });
-//         const view = new MapView({
-//           container: mapDiv.current,
-//           map: map,
-//         });
-
-//         // Add custom logic for interacting with the map (optional)
-
-//         return () => {
-//           if (view) {
-//             // Cleanup logic for the map and view (if needed)
-//             view.destroy();
-//           }
-//         };
-//       })
-//       .catch((err) => console.error('Error loading Esri modules:', err));
-//   }, []);
-
-//   return <div ref={mapDiv} style={{ width: '100vw', height: '400px' }} />;
-// };
-
-// export default Map;
-
-// import React, { useRef, useEffect } from 'react';
-// import { loadModules } from 'esri-loader';
-
-// const MapView = () => {
-//   const mapRef = useRef(null);
-
-//   useEffect(() => {
-//     // Lazy load the required ArcGIS API for JavaScript modules and CSS
-//     loadModules([
-//       'esri/Map',
-//       'esri/views/MapView',
-//       'esri/widgets/Search',
-//     ], {
-//       css: true,
-//     }).then(([Map, MapView, Search]) => {
-//       const map = new Map({
-//         basemap: 'streets-navigation-vector',
-//       });
-
-//       const view = new MapView({
-//         container: mapRef.current,
-//         map: map,
-//         center: [-118.805, 34.027], // Longitude, latitude
-//         zoom: 13,
-//       });
-
-//       // Create a Search widget and add it to the view
-//       const searchWidget = new Search({
-//         view: view,
-//       });
-
-//       // Add the search widget to the top right corner of the view
-//       view.ui.add(searchWidget, {
-//         position: 'top-right',
-//       });
-
-//       // Clean up the view and search widget when the component unmounts
-//       return () => {
-//         if (view) {
-//           view.destroy();
-//         }
-//       };
-//     }).catch(err => {
-//       console.error(err);
-//     });
-//   }, []);
-
-//   return (
-//     <div
-//       className="webmap"
-//       style={{ height: 800, width: '100%' }}
-//       ref={mapRef}
-//     ></div>
-//   );
-// };
-
-// export default MapView;
 
 import React, { useRef, useEffect, useState } from 'react';
 import { loadModules } from 'esri-loader';
-
+import '../App.css'
 const MapView = () => {
   const mapRef = useRef(null);
   const [intersectingFeatures, setIntersectingFeatures] = useState([]);
+  const [selectedFeature, setSelectedFeature] = useState(null);
 
   useEffect(() => {
     loadModules([
@@ -120,12 +23,14 @@ const MapView = () => {
         container: mapRef.current,
         map: map,
         center: [ -75.5644, 39.2096], // Longitude, latitude
-        zoom: 8,
+        zoom: 7,
       });
 
       const featureLayer = new FeatureLayer({
-        url: 'https://services2.arcgis.com/M7TEANoOZzgrO5AX/arcgis/rest/services/FeederPatternKindergarten_24_25_69ef0/FeatureServer' // Replace with your feature layer URL
+        url: 'https://services2.arcgis.com/M7TEANoOZzgrO5AX/arcgis/rest/services/FeederPatternKindergarten_24_25_69ef0/FeatureServer', // Replace with your feature layer URL
+        outFields: ['*'], // Ensure all fields are returned
       });
+      
 
       map.add(featureLayer);
 
@@ -155,6 +60,11 @@ const MapView = () => {
 
         featureLayer.queryFeatures(query).then((results) => {
           setIntersectingFeatures(results.features);
+          if (results.features.length > 0) {
+            setSelectedFeature(results.features[0]);
+          } else {
+            setSelectedFeature(null);
+          }
         });
       };
 
@@ -163,6 +73,21 @@ const MapView = () => {
     });
   }, []);
 
+  const renderFeatureDetails = (feature) => {
+    return (
+      <div>
+        <h4>Feature Details</h4>
+        <ul>
+          {Object.keys(feature.attributes).map((key, index) => (
+            <li key={index}>
+              <strong>{key}:</strong> {feature.attributes[key]}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100%' }}>
       <div ref={mapRef} style={{ flex: 1 }}></div>
@@ -170,11 +95,12 @@ const MapView = () => {
         <h3>Intersecting Features</h3>
         <ul>
           {intersectingFeatures.map((feature, index) => (
-            <li key={index}>
+            <li key={index} onClick={() => setSelectedFeature(feature)}>
               {feature.attributes.NAME || `Feature ${index + 1}`}
             </li>
           ))}
         </ul>
+        {selectedFeature && renderFeatureDetails(selectedFeature)}
       </div>
     </div>
   );
