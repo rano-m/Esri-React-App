@@ -5,7 +5,7 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 10vh;
+  min-height: 5vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -46,4 +46,33 @@
 
 .panel h4 {
   margin-top: 0;
+}
+
+.feature-list, .feature-details {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.feature-list th, .feature-list td, .feature-details th, .feature-details td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.feature-list th, .feature-details th {
+  background-color: #f2f2f2;
+  text-align: left;
+}
+
+.feature-list tr:hover, .feature-details tr:hover {
+  background-color: #ddd;
+}
+
+.feature-list tr {
+  cursor: pointer;
+}
+
+.feature-details th {
+  background-color: #4CAF50;
+  color: white;
 }
