@@ -36,3 +36,25 @@
     transform: rotate(360deg);
   }
 }
+
+.App-header {
+  background-color: #282c34;
+  min-height: 10vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.webmap {
+  height: 80vh;
+  width: 100%;
+}
+
+.panel {
+  width: 300px;
+  padding: 10px;
+  overflow-y: auto;
+}
