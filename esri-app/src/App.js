@@ -1,5 +1,6 @@
 import React from 'react';
 import Map from './components/MapView';
+import Search from './components/MapComponent'
 import './App.css'
 function App() {
   return (
@@ -7,7 +8,8 @@ function App() {
       <header className="App-header">
         <h1>DDEO School Locator</h1>
       </header>
-      <Map/>
+    <Map/>
+      {/* <Search/> */}
     </div>
   );
 }

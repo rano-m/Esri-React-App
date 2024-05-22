@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { loadModules } from 'esri-loader';
 import '../App.css';
@@ -28,9 +27,10 @@ const MapView = () => {
         zoom: 7,
       });
 
-      //Disabling Pop-ups
+      // Disabling Pop-ups
       view.popupEnabled = false;
 
+      // Configuration for feature layers
       const layerConfigs = [
         { url: 'https://services2.arcgis.com/M7TEANoOZzgrO5AX/arcgis/rest/services/FeederPatternKindergarten_24_25_69ef0/FeatureServer', name: 'Kindergarten' },
         { url: 'https://services2.arcgis.com/M7TEANoOZzgrO5AX/arcgis/rest/services/FeederPatternGradeOne_24_25/FeatureServer', name: '1st Grade' },
@@ -65,6 +65,7 @@ const MapView = () => {
         position: 'top-right',
       });
 
+      // Function to add a pinpoint on the map
       const addPinpoint = (point) => {
         const symbol = new PictureMarkerSymbol({
           url: 'https://static.arcgis.com/images/Symbols/Shapes/BluePin1LargeB.png',
@@ -81,6 +82,7 @@ const MapView = () => {
         view.graphics.add(graphic);
       };
 
+      // Handle search completion event
       searchWidget.on('search-complete', (event) => {
         const point = event.results[0].results[0].feature.geometry;
         view.goTo({
@@ -89,12 +91,9 @@ const MapView = () => {
         });
         addPinpoint(point);
         queryFeatures(point);
-
-        // Disable pop-ups on search
-        view.popup.clear();
       });
 
-
+      // Handle map click event
       view.on('click', (event) => {
         view.goTo({
           center: event.mapPoint,
@@ -104,6 +103,7 @@ const MapView = () => {
         queryFeatures(event.mapPoint);
       });
 
+      // Function to query features intersecting with the given point
       const queryFeatures = (point) => {
         let allIntersectingFeatures = {};
         let allQueries = featureLayers.map((layer) => {
@@ -126,16 +126,17 @@ const MapView = () => {
           } else {
             setSelectedFeature(null);
           }
+        }).catch(err => {
+          console.error("Error querying features: ", err);
         });
       };
 
     }).catch(err => {
-      console.error(err);
+      console.error("Error loading modules: ", err);
     });
   }, []);
 
-
-  
+  // Sort intersecting features by grade
   const sortedIntersectingFeatures = Object.keys(intersectingFeatures)
     .sort((a, b) => {
       const layerOrder = [
@@ -151,7 +152,7 @@ const MapView = () => {
       <div ref={mapRef} style={{ flex: 1 }}></div>
       <div className='panel'>
         <h3>Locate your School</h3>
-        <p>Click your adress on the map or use the search bar</p>
+        <p>Click your address on the map or use the search bar</p>
         {sortedIntersectingFeatures.map((layerName, index) => (
           <div key={index}>
             <table className="feature-list">
@@ -171,10 +172,10 @@ const MapView = () => {
                         <strong>Report Card:</strong> <a href={feature.attributes.Report_Card} target="_blank" rel="noopener noreferrer" title="View Report Card">Click to view</a>
                       </div>
                       <div>
-                        <strong>Phone:</strong> {feature.attributes.Phone}
+                        <strong>Phone:</strong> {feature.attributes.Phone || 'N/A'}
                       </div>
                       <div>
-                        <strong>Website:</strong> <a href={feature.attributes.WebAddress} target="_blank" rel="noopener noreferrer" title="View Report Card">Click to view</a>
+                        <strong>Website:</strong> <a href={feature.attributes.WebAddress} target="_blank" rel="noopener noreferrer" title="View Website">Click to view</a>
                       </div>
                     </td>
                   </tr>
@@ -183,7 +184,6 @@ const MapView = () => {
             </table>
           </div>
         ))}
-        
       </div>
     </div>
   );
