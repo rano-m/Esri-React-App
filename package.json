@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "esri-loader": "^3.7.0"
+    "@arcgis/core": "^4.29.10"
   }
 }
