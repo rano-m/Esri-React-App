@@ -30,6 +30,19 @@ const MapView = () => {
       // Disabling Pop-ups
       view.popupEnabled = false;
 
+      // Boundary Layer (non-interactive) 
+      const boundaryLayer = new FeatureLayer({ 
+        url: 'https://services2.arcgis.com/utBig56dGaw25bwu/arcgis/rest/services/DelawareBoundary/FeatureServer', 
+        popupEnabled: false 
+      }); 
+      map.add(boundaryLayer); 
+      // School Points Layer 
+      const schoolPointsLayer = new FeatureLayer({ 
+        url: 'https://services2.arcgis.com/M7TEANoOZzgrO5AX/arcgis/rest/services/DDOE_School_List_SY2025/FeatureServer', 
+        outFields: ['*'] 
+      }); 
+      map.add(schoolPointsLayer); 
+
       // Configuration for feature layers
       const layerConfigs = [
         { url: 'https://services2.arcgis.com/M7TEANoOZzgrO5AX/arcgis/rest/services/FeederPatternKindergarten_24_25_69ef0/FeatureServer', name: 'Kindergarten' },
@@ -51,6 +64,7 @@ const MapView = () => {
         const layer = new FeatureLayer({
           url: config.url,
           outFields: ['*'],
+          opacity: 0,
         });
         layer.customName = config.name;
         map.add(layer);
