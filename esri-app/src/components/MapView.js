@@ -477,54 +477,79 @@ const MyMap = () => {
   }, []);
 
   const sortedIntersectingFeatures = Object.keys(intersectingFeatures)
-  .sort((a, b) => a.localeCompare(b));
+  .sort((a, b) => {
+    const minGradeA = Math.min(...intersectingFeatures[a].map(feature => feature.layer.grade));
+    const minGradeB = Math.min(...intersectingFeatures[b].map(feature => feature.layer.grade));
+    return minGradeA - minGradeB;
+  });
 
-  return (
-    <div style={{ display: 'flex', height: '100vh', width: '100%' }}>
-      <div ref={mapRef} style={{ flex: 1 }}></div>
-      <div className='panel'>
-        <h3>Locate your School</h3>
-        <p>Click your address on the map or use the search bar</p>
-        {sortedIntersectingFeatures.map((schoolName, index) => {
-          // Find the minimum and maximum grade for this school
-          const grades = intersectingFeatures[schoolName].map(feature => feature.layer.grade);
-          const minGrade = Math.min(...grades);
-          const maxGrade = Math.max(...grades);
-          return (
-            <div key={index}>
-              <table className="feature-list">
-                <thead>
-                  <tr>
-                    <th>{`Grade Range: ${minGrade} - ${maxGrade}`}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr onClick={() => setSelectedFeature(intersectingFeatures[schoolName][0])}>
-                    <td>
-                      <div>
-                        <strong>School Name:</strong> {intersectingFeatures[schoolName][0].attributes.SchoolName}
-                      </div>
-                      <div>
-                        <strong>Report Card:</strong> <a href={intersectingFeatures[schoolName][0].attributes.Report_Card} target="_blank" rel="noopener noreferrer" title="View Report Card">Click to view</a>
-                      </div>
-                      <div>
-                        <strong>Phone:</strong> {intersectingFeatures[schoolName][0].attributes.Phone || 'N/A'}
-                      </div>
-                      <div>
-                        <strong>Website:</strong> <a href={intersectingFeatures[schoolName][0].attributes.WebAddress} target="_blank" rel="noopener noreferrer" title="View Website">Click to view</a>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          );
-        })}
-      </div>
+return (
+  <div style={{ display: 'flex', height: '100vh', width: '100%' }}>
+    <div ref={mapRef} style={{ flex: 1 }}></div>
+    <div className='panel'>
+      <h3>Locate your School</h3>
+      <p>Click your address on the map or use the search bar</p>
+      {/* Extract unique district names */}
+            {(() => {
+        const uniqueDistrictNames = new Set();
+        sortedIntersectingFeatures.forEach(schoolName => {
+          intersectingFeatures[schoolName].forEach(feature => {
+            uniqueDistrictNames.add(feature.attributes.DistrictName);
+          });
+        });
+        const districtNamesArray = [...uniqueDistrictNames];
+        return districtNamesArray.length > 0 ? (
+          <div>
+            <p>Your District:</p>
+            {districtNamesArray.map((districtName, index) => (
+              <h5 key={index}>{districtName}</h5>
+            ))}
+          </div>
+        ) : null;
+      })()}
+
+      {sortedIntersectingFeatures.map((schoolName, index) => {
+        // Find the minimum and maximum grade for this school
+        const grades = intersectingFeatures[schoolName].map(feature => feature.layer.grade);
+        const minGrade = Math.min(...grades);
+        const maxGrade = Math.max(...grades);
+        // Get district name
+        
+        return (
+          <div key={index}>
+            <table className="feature-list">
+              <thead>
+                <tr>
+                  <th>{`Grade Range: ${minGrade} - ${maxGrade}`}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr onClick={() => setSelectedFeature(intersectingFeatures[schoolName][0])}>
+                  <td>
+                  <div>
+                    </div>
+                    <div>
+                      <strong>School Name:</strong> {intersectingFeatures[schoolName][0].attributes.SchoolName}
+                    </div>
+                    <div>
+                      <strong>Report Card:</strong> <a href={intersectingFeatures[schoolName][0].attributes.Report_Card} target="_blank" rel="noopener noreferrer" title="View Report Card">Click to view</a>
+                    </div>
+                    <div>
+                      <strong>Phone:</strong> {intersectingFeatures[schoolName][0].attributes.Phone || 'N/A'}
+                    </div>
+                    <div>
+                      <strong>Website:</strong> <a href={intersectingFeatures[schoolName][0].attributes.WebAddress} target="_blank" rel="noopener noreferrer" title="View Website">Click to view</a>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        );
+      })}
     </div>
-  );
-  
-  
+  </div>
+);
 };
 
 export default MyMap;
